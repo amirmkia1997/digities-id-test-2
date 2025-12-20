@@ -30,45 +30,60 @@
               o.q = [];
             }
 
-            // Wait 2 seconds after SDK loads, then call window.get_dwid()
-            setTimeout(function () {
-              var resultElement = document.getElementById("dwid-result");
-              
-              function displayDwid() {
-                if (window.get_dwid) {
+            // Check periodically for window.get_dwid and then wait 2 seconds
+            var checkInterval = setInterval(function() {
+              if (window.get_dwid && typeof window.get_dwid === 'function') {
+                clearInterval(checkInterval);
+                console.log("window.get_dwid found, waiting 2 seconds...");
+                
+                // Wait 2 seconds after function is available
+                setTimeout(function () {
+                  var resultElement = document.getElementById("dwid-result");
+                  console.log("Calling window.get_dwid()...");
+                  
                   try {
                     var dwid = window.get_dwid();
+                    console.log("Result:", dwid);
                     
                     // Check if it's a Promise
                     if (dwid && typeof dwid.then === 'function') {
+                      console.log("Result is a Promise, waiting...");
                       dwid.then(function(result) {
+                        console.log("Promise resolved:", result);
                         if (resultElement) {
-                          resultElement.textContent = typeof result === 'object' ? JSON.stringify(result) : result;
+                          resultElement.textContent = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result);
                         }
                       }).catch(function(error) {
+                        console.error("Promise rejected:", error);
                         if (resultElement) {
                           resultElement.textContent = "Error: " + error;
                         }
                       });
                     } else {
                       // It's not a Promise, display directly
+                      console.log("Result is not a Promise, displaying directly");
                       if (resultElement) {
-                        resultElement.textContent = typeof dwid === 'object' ? JSON.stringify(dwid) : dwid;
+                        resultElement.textContent = typeof dwid === 'object' ? JSON.stringify(dwid, null, 2) : String(dwid);
                       }
                     }
                   } catch (error) {
+                    console.error("Error calling get_dwid:", error);
                     if (resultElement) {
-                      resultElement.textContent = "Error calling get_dwid: " + error;
+                      resultElement.textContent = "Error: " + error.message;
                     }
                   }
-                } else {
-                  // Retry after 500ms if function is not available yet
-                  setTimeout(displayDwid, 500);
-                }
+                }, 2000);
               }
-              
-              displayDwid();
-            }, 2000);
+            }, 100);
+            
+            // Stop checking after 30 seconds
+            setTimeout(function() {
+              clearInterval(checkInterval);
+              var resultElement = document.getElementById("dwid-result");
+              if (resultElement && !resultElement.textContent) {
+                resultElement.textContent = "window.get_dwid not found after 30 seconds";
+              }
+            }, 30000);
           });
         }
       };
@@ -84,3 +99,4 @@
   
 </body>
 </html>
+
