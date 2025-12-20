@@ -18,6 +18,10 @@
 
       s.onload = function () {
         console.log("Publisher SDK loaded");  
+        if (window.get_dwid && typeof window.get_dwid === 'function') {
+          var resultElement = document.getElementById("dwid-result");
+          resultElement.textContent = window.get_dwid();
+        }
         if (window.Publisher && window.Publisher.getInstance) {
           window.Publisher.getInstance().then(function (instance) {
             o.init = function () {
