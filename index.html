@@ -33,16 +33,41 @@
             // Wait 2 seconds after SDK loads, then call window.get_dwid()
             setTimeout(function () {
               var resultElement = document.getElementById("dwid-result");
-              if (window.get_dwid) {
-                var dwid = window.get_dwid();
-                if (resultElement) {
-                  resultElement.textContent = dwid;
-                }
-              } else {
-                if (resultElement) {
-                  resultElement.textContent = "window.get_dwid is not available";
+              
+              function displayDwid() {
+                if (window.get_dwid) {
+                  try {
+                    var dwid = window.get_dwid();
+                    
+                    // Check if it's a Promise
+                    if (dwid && typeof dwid.then === 'function') {
+                      dwid.then(function(result) {
+                        if (resultElement) {
+                          resultElement.textContent = typeof result === 'object' ? JSON.stringify(result) : result;
+                        }
+                      }).catch(function(error) {
+                        if (resultElement) {
+                          resultElement.textContent = "Error: " + error;
+                        }
+                      });
+                    } else {
+                      // It's not a Promise, display directly
+                      if (resultElement) {
+                        resultElement.textContent = typeof dwid === 'object' ? JSON.stringify(dwid) : dwid;
+                      }
+                    }
+                  } catch (error) {
+                    if (resultElement) {
+                      resultElement.textContent = "Error calling get_dwid: " + error;
+                    }
+                  }
+                } else {
+                  // Retry after 500ms if function is not available yet
+                  setTimeout(displayDwid, 500);
                 }
               }
+              
+              displayDwid();
             }, 2000);
           });
         }
