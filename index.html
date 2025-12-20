@@ -10,7 +10,7 @@
       d[e] = d[e] || function () {
         (o.q = o.q || []).push(arguments);
       };
-      var cdn_url = "https=/cdn.digities.tech/zMzGMP/stage_1-WEBSITE-62890700";
+      var cdn_url = "https://cdn.digities.tech/AeqbSb/id-test-WEBSITE-56069748";
 
       s = g.createElement(t);
       s.async = true;
@@ -29,6 +29,21 @@
               });
               o.q = [];
             }
+
+            // Wait 2 seconds after SDK loads, then call window.get_dwid()
+            setTimeout(function () {
+              var resultElement = document.getElementById("dwid-result");
+              if (window.get_dwid) {
+                var dwid = window.get_dwid();
+                if (resultElement) {
+                  resultElement.textContent = dwid;
+                }
+              } else {
+                if (resultElement) {
+                  resultElement.textContent = "window.get_dwid is not available";
+                }
+              }
+            }, 2000);
           });
         }
       };
@@ -40,6 +55,7 @@
 </head>
 <body>
   <h1>PAGE : 2</h1>
+  <h3 id="dwid-result"></h3>
   
 </body>
 </html>
